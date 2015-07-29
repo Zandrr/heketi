@@ -23,7 +23,9 @@ import (
 	"fmt"
 	"github.com/heketi/heketi/apps/glusterfs"
 	"github.com/heketi/heketi/utils"
+	"io"
 	"net/http"
+	"os"
 )
 
 type CreateNewClusterCommand struct {
@@ -34,6 +36,10 @@ type CreateNewClusterCommand struct {
 
 	options *Options
 }
+
+var (
+	stdout io.Writer = os.Stdout
+)
 
 func NewCreateNewClusterCommand(options *Options) *CreateNewClusterCommand {
 	cmd := &CreateNewClusterCommand{}
@@ -64,23 +70,28 @@ func (a *CreateNewClusterCommand) Parse(args []string) error {
 }
 
 func (a *CreateNewClusterCommand) Do() error {
+	//set url
 	url := a.options.Url
+
+	//do http POST and check if sent to server
 	r, err := http.Post(url+"/clusters", "application/json", bytes.NewBuffer([]byte("{}")))
 	if err != nil {
-		fmt.Println("Unable to send command to server: %v", err)
+		fmt.Fprintf(stdout, "Unable to send command to server: %v", err)
 		return err
 	}
+
 	if r.StatusCode != http.StatusCreated {
 		fmt.Println("status not ok")
 		return errors.New("returned with bad response")
 	}
+
 	var body glusterfs.ClusterInfoResponse
 	err = utils.GetJsonFromResponse(r, &body)
 	if err != nil {
 		fmt.Println("bad json response from server")
 		return err
 	}
-	fmt.Println(body)
+	fmt.Fprintf(stdout, "Cluster id: %v\n", body.Id)
 	//create var that is http server of heketi server. var httpServer.
 	//maybe pass server as argument?
 	//do a post to the server's URL/clusters and pass it the request object, {}
