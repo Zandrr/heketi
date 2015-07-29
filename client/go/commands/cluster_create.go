@@ -17,12 +17,13 @@
 package commands
 
 import (
+	"bytes"
 	"errors"
 	"flag"
 	"fmt"
-	// "github.com/heketi/heketi/apps/glusterfs"
-	// "github.com/heketi/heketi/client/go/utils"
-	// "net/http"
+	"github.com/heketi/heketi/apps/glusterfs"
+	"github.com/heketi/heketi/utils"
+	"net/http"
 )
 
 type CreateNewClusterCommand struct {
@@ -30,12 +31,14 @@ type CreateNewClusterCommand struct {
 	// embedding.  In other words, the members in
 	// the struct below are here also
 	Cmd
+
+	options *Options
 }
 
-func NewCreateNewClusterCommand() *CreateNewClusterCommand {
+func NewCreateNewClusterCommand(options *Options) *CreateNewClusterCommand {
 	cmd := &CreateNewClusterCommand{}
 	cmd.name = "create"
-
+	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
 	cmd.flags.Usage = func() {
 		fmt.Println("Hello from my create")
@@ -61,6 +64,23 @@ func (a *CreateNewClusterCommand) Parse(args []string) error {
 }
 
 func (a *CreateNewClusterCommand) Do() error {
+	url := a.options.Url
+	r, err := http.Post(url+"/clusters", "application/json", bytes.NewBuffer([]byte("{}")))
+	if err != nil {
+		fmt.Println("Unable to send command to server: %v", err)
+		return err
+	}
+	if r.StatusCode != http.StatusCreated {
+		fmt.Println("status not ok")
+		return errors.New("returned with bad response")
+	}
+	var body glusterfs.ClusterInfoResponse
+	err = utils.GetJsonFromResponse(r, &body)
+	if err != nil {
+		fmt.Println("bad json response from server")
+		return err
+	}
+	fmt.Println(body)
 	//create var that is http server of heketi server. var httpServer.
 	//maybe pass server as argument?
 	//do a post to the server's URL/clusters and pass it the request object, {}

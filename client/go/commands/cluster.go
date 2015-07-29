@@ -31,16 +31,18 @@ type ClusterCommand struct {
 	// Subcommands available to this command
 	cmds Commands
 
+	options *Options
+
 	// Subcommand
 	cmd Command
 }
 
-func NewClusterCommand() *ClusterCommand {
+func NewClusterCommand(options *Options) *ClusterCommand {
 	cmd := &ClusterCommand{}
 	cmd.name = "cluster"
-
+	cmd.options = options
 	cmd.cmds = Commands{
-		NewCreateNewClusterCommand(),
+		NewCreateNewClusterCommand(options),
 		NewGetClusterInfoCommand(),
 		NewGetClusterListCommand(),
 		NewDestroyClusterCommand(),

@@ -20,15 +20,28 @@ import (
 	"flag"
 	"fmt"
 	"github.com/heketi/heketi/client/go/commands"
+	"os"
 )
+
+var options commands.Options
+
+func init() {
+
+	flag.StringVar(&options.Url, "server", "", "server url goes here.")
+
+}
 
 // ------ Main
 func main() {
 	flag.Parse()
+	if options.Url == "" {
+		fmt.Println("You need a server!")
+		os.Exit(1)
+	}
 	cmds := commands.Commands{
 		commands.NewArithCommand(),
 		commands.NewEchoCommand(),
-		commands.NewClusterCommand(),
+		commands.NewClusterCommand(&options),
 	}
 
 	for _, cmd := range cmds {
