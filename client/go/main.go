@@ -28,6 +28,7 @@ func main() {
 	cmds := commands.Commands{
 		commands.NewArithCommand(),
 		commands.NewEchoCommand(),
+		commands.NewClusterCommand(),
 	}
 
 	for _, cmd := range cmds {
