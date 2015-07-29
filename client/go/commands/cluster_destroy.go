@@ -17,13 +17,13 @@
 package commands
 
 import (
-	// "errors"
+	"errors"
 	"flag"
 	"fmt"
 	// "github.com/heketi/heketi/apps/glusterfs"
 	// "github.com/heketi/heketi/utils"
-	"net/http"
 	// "github.com/heketi/heketi/apps/glusterfs"
+	"net/http"
 	// "github.com/heketi/heketi/client/go/utils"
 	// "net/http"
 )
@@ -39,11 +39,11 @@ type DestroyClusterCommand struct {
 
 func NewDestroyClusterCommand(options *Options) *DestroyClusterCommand {
 	cmd := &DestroyClusterCommand{}
-	cmd.name = "info"
+	cmd.name = "destroy"
 	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
 	cmd.flags.Usage = func() {
-		fmt.Println("Hello from my info")
+		fmt.Println("Hello from my destroy")
 	}
 
 	return cmd
@@ -65,11 +65,24 @@ func (a *DestroyClusterCommand) Do() error {
 	//set url
 	url := a.options.Url
 
-	//do http GET and check if sent to server
-	r, err := http.Del("DELETE", url+"/clusters/"+a.clusterId, nil)
+	//create destroy request object
+	req, err := http.NewRequest("DELETE", url+"/clusters/"+a.clusterId, nil)
+	if err != nil {
+		fmt.Fprintf(stdout, "Unable to initiate destroy: %v", err)
+		return err
+	}
+
+	//destroy cluster
+	r, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Fprintf(stdout, "Unable to send command to server: %v", err)
 		return err
+	}
+
+	//check status code
+	if r.StatusCode != http.StatusOK {
+		fmt.Println("status not ok")
+		return errors.New("returned with bad response")
 	}
 
 	//if all is well, print stuff
