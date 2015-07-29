@@ -20,6 +20,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
+	"os"
 )
 
 type ClusterCommand struct {
@@ -37,15 +39,19 @@ type ClusterCommand struct {
 	cmd Command
 }
 
+var (
+	stdout io.Writer = os.Stdout
+)
+
 func NewClusterCommand(options *Options) *ClusterCommand {
 	cmd := &ClusterCommand{}
 	cmd.name = "cluster"
 	cmd.options = options
 	cmd.cmds = Commands{
 		NewCreateNewClusterCommand(options),
-		NewGetClusterInfoCommand(),
-		NewGetClusterListCommand(),
-		NewDestroyClusterCommand(),
+		NewGetClusterInfoCommand(options),
+		NewGetClusterListCommand(options),
+		NewDestroyClusterCommand(options),
 	}
 
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)

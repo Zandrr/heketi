@@ -40,7 +40,7 @@ func TestNewClusterCreate(t *testing.T) {
 	tests.Assert(t, cluster.options == options, *options)
 }
 
-func TestClusterPost(t *testing.T) {
+func TestClusterPostSuccess(t *testing.T) {
 	defer os.Remove("heketi.db")
 	// Create the app
 	app := glusterfs.NewApp()
@@ -65,3 +65,55 @@ func TestClusterPost(t *testing.T) {
 	tests.Assert(t, err == nil)
 	tests.Assert(t, strings.Contains(b.String(), "Cluster id: "))
 }
+
+func TestClusterPostFailureServer(t *testing.T) {
+	defer os.Remove("heketi.db")
+	// Create the app
+	app := glusterfs.NewApp()
+	defer app.Close()
+	router := mux.NewRouter()
+	app.SetRoutes(router)
+
+	// Setup the server
+	ts := httptest.NewServer(router)
+	defer ts.Close()
+
+	options := &Options{
+		Url: "http://nottherightthing:8080",
+	}
+
+	var b bytes.Buffer
+	defer tests.Patch(&stdout, &b).Restore()
+
+	cluster := NewCreateNewClusterCommand(options)
+	tests.Assert(t, cluster != nil)
+	err := cluster.Do()
+	tests.Assert(t, err != nil)
+	tests.Assert(t, strings.Contains(b.String(), "Unable to send "))
+}
+
+// func TestClusterPostFailureStatusResponse(t *testing.T) {
+// 	defer os.Remove("heketi.db")
+// 	// Create the app
+// 	app := glusterfs.NewApp()
+// 	defer app.Close()
+// 	router := mux.NewRouter()
+// 	app.SetRoutes(router)
+
+// 	// Setup the server
+// 	ts := httptest.NewServer(router)
+// 	defer ts.Close()
+
+// 	options := &Options{
+// 		Url: ts.URL,
+// 	}
+
+// 	var b bytes.Buffer
+// 	defer tests.Patch(&stdout, &b).Restore()
+
+// 	cluster := NewCreateNewClusterCommand(options)
+// 	tests.Assert(t, cluster != nil)
+// 	err := cluster.Do()
+// 	tests.Assert(t, err != nil, err)
+// 	tests.Assert(t, strings.Contains(b.String(), "returned with bad response"))
+// }

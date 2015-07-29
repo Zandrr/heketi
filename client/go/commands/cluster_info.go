@@ -20,9 +20,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	// "github.com/heketi/heketi/apps/glusterfs"
+	"github.com/heketi/heketi/apps/glusterfs"
+	"github.com/heketi/heketi/utils"
+	"net/http"
 	// "github.com/heketi/heketi/client/go/utils"
-	// "net/http"
 )
 
 type GetClusterInfoCommand struct {
@@ -30,12 +31,14 @@ type GetClusterInfoCommand struct {
 	// embedding.  In other words, the members in
 	// the struct below are here also
 	Cmd
+	options   *Options
+	clusterId string
 }
 
-func NewGetClusterInfoCommand() *GetClusterInfoCommand {
+func NewGetClusterInfoCommand(options *Options) *GetClusterInfoCommand {
 	cmd := &GetClusterInfoCommand{}
 	cmd.name = "info"
-
+	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
 	cmd.flags.Usage = func() {
 		fmt.Println("Hello from my info")
@@ -50,20 +53,47 @@ func (a *GetClusterInfoCommand) Name() string {
 }
 
 func (a *GetClusterInfoCommand) Parse(args []string) error {
-	// a.flags.Parse(args)
-	if len(args) > 0 {
-		fmt.Println("Too many arguments!")
-		return errors.New("Too many arguments!")
-	}
-	fmt.Println(len(args))
+	a.flags.Parse(args)
+	a.clusterId = a.flags.Arg(0)
 	return nil
 
 }
 
 func (a *GetClusterInfoCommand) Do() error {
-	//create var that is http server of heketi server. var httpServer.
-	//maybe pass server as arugment?
-	//do a post to the server's URL/clusters and pass it the request object, {}
-	//r, err := http.Post(httpServer.URL+"/clusters", "application/json", REQUEST)
+	//set url
+	url := a.options.Url
+
+	//do http GET and check if sent to server
+	r, err := http.Get(url + "/clusters/" + a.clusterId)
+	if err != nil {
+		fmt.Fprintf(stdout, "Unable to send command to server: %v", err)
+		return err
+	}
+
+	//check status code
+	if r.StatusCode != http.StatusOK {
+		fmt.Println("status not ok")
+		return errors.New("returned with bad response")
+	}
+
+	//check json response
+	var body glusterfs.ClusterInfoResponse
+	err = utils.GetJsonFromResponse(r, &body)
+	if err != nil {
+		fmt.Println("bad json response from server")
+		return err
+	}
+
+	//if all is well, print stuff
+	fmt.Fprintf(stdout, "For cluster: %v ", a.clusterId+"\n")
+	fmt.Println("Nodes are: \n")
+	for _, node := range body.Nodes {
+		fmt.Println(node)
+	}
+	fmt.Println("Volumes are: \n")
+	for _, volume := range body.Volumes {
+		fmt.Println(volume)
+	}
+
 	return nil
 }

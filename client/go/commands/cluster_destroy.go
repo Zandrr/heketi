@@ -17,9 +17,12 @@
 package commands
 
 import (
-	"errors"
+	// "errors"
 	"flag"
 	"fmt"
+	// "github.com/heketi/heketi/apps/glusterfs"
+	// "github.com/heketi/heketi/utils"
+	"net/http"
 	// "github.com/heketi/heketi/apps/glusterfs"
 	// "github.com/heketi/heketi/client/go/utils"
 	// "net/http"
@@ -30,15 +33,17 @@ type DestroyClusterCommand struct {
 	// embedding.  In other words, the members in
 	// the struct below are here also
 	Cmd
+	options   *Options
+	clusterId string
 }
 
-func NewDestroyClusterCommand() *DestroyClusterCommand {
+func NewDestroyClusterCommand(options *Options) *DestroyClusterCommand {
 	cmd := &DestroyClusterCommand{}
-	cmd.name = "destroy"
-
+	cmd.name = "info"
+	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
 	cmd.flags.Usage = func() {
-		fmt.Println("Hello from my destroy")
+		fmt.Println("Hello from my info")
 	}
 
 	return cmd
@@ -50,20 +55,25 @@ func (a *DestroyClusterCommand) Name() string {
 }
 
 func (a *DestroyClusterCommand) Parse(args []string) error {
-	// a.flags.Parse(args)
-	if len(args) > 0 {
-		fmt.Println("Too many arguments!")
-		return errors.New("Too many arguments!")
-	}
-	fmt.Println(len(args))
+	a.flags.Parse(args)
+	a.clusterId = a.flags.Arg(0)
 	return nil
 
 }
 
 func (a *DestroyClusterCommand) Do() error {
-	//create var that is http server of heketi server. var httpServer.
-	//maybe pass server as argument?
-	//do a post to the server's URL/clusters and pass it the request object, {}
-	//r, err := http.Post(httpServer.URL+"/clusters", "application/json", REQUEST)
+	//set url
+	url := a.options.Url
+
+	//do http GET and check if sent to server
+	r, err := http.Del("DELETE", url+"/clusters/"+a.clusterId, nil)
+	if err != nil {
+		fmt.Fprintf(stdout, "Unable to send command to server: %v", err)
+		return err
+	}
+
+	//if all is well, print stuff
+	fmt.Fprintf(stdout, "Successfully destroyed cluster with id: %v ", a.clusterId)
+
 	return nil
 }
