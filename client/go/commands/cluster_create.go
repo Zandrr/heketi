@@ -81,6 +81,6 @@ func (a *CreateNewClusterCommand) Do() error {
 	}
 
 	//if all is well, print stuff
-	fmt.Fprintf(stdout, "Cluster id: %v\n", body.Id)
+	fmt.Fprintf(stdout, "Cluster id:%v", body.Id)
 	return nil
 }

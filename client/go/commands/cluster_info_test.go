@@ -27,19 +27,9 @@ import (
 	"testing"
 )
 
-func TestNewClusterCreate(t *testing.T) {
-	options := &Options{
-		Url: "home",
-	}
-	cluster := NewCreateNewClusterCommand(options)
-
-	tests.Assert(t, cluster != nil)
-	tests.Assert(t, cluster.name == "create")
-	tests.Assert(t, cluster.options == options, *options)
-}
-
-func TestClusterPostSuccess(t *testing.T) {
+func TestNewGetClusterInfo(t *testing.T) {
 	defer os.Remove("heketi.db")
+
 	// Create the app
 	app := glusterfs.NewApp()
 	defer app.Close()
@@ -50,43 +40,42 @@ func TestClusterPostSuccess(t *testing.T) {
 	ts := httptest.NewServer(router)
 	defer ts.Close()
 
+	//set options
 	options := &Options{
 		Url: ts.URL,
 	}
 
+	//create b to get values of stdout
 	var b bytes.Buffer
 	defer tests.Patch(&stdout, &b).Restore()
 
-	cluster := NewCreateNewClusterCommand(options)
-	tests.Assert(t, cluster != nil)
-	err := cluster.Do()
+	//create mock cluster and mock destroy
+	mockCluster := NewCreateNewClusterCommand(options)
+
+	//create new cluster
+	mockClustererr := mockCluster.Do()
+	tests.Assert(t, mockClustererr == nil)
+
+	//get cluster id
+	MockClusterId := strings.SplitAfter(b.String(), "id:")[1]
+	b.Reset()
+
+	//set destroy id to our id
+	clusterInfo := NewGetClusterInfoCommand(options)
+	clusterInfo.clusterId = MockClusterId
+
+	err := clusterInfo.Do()
+
+	tests.Assert(t, err == nil, err)
+	tests.Assert(t, strings.Contains(b.String(), "For cluster:"), b.String())
+
+	//create destroy struct and destroy it
+	mockClusterDestroy := NewDestroyClusterCommand(options)
+	mockClusterDestroy.clusterId = MockClusterId
+	err = mockClusterDestroy.Do()
 	tests.Assert(t, err == nil)
-	tests.Assert(t, strings.Contains(b.String(), "Cluster id: "))
-}
 
-func TestClusterPostFailure(t *testing.T) {
-	defer os.Remove("heketi.db")
-
-	// Create the app
-	app := glusterfs.NewApp()
-	defer app.Close()
-	router := mux.NewRouter()
-	app.SetRoutes(router)
-
-	// Setup the server
-	ts := httptest.NewServer(router)
-	defer ts.Close()
-
-	options := &Options{
-		Url: "http://nottherightthing:8080",
-	}
-
-	var b bytes.Buffer
-	defer tests.Patch(&stdout, &b).Restore()
-
-	cluster := NewCreateNewClusterCommand(options)
-	tests.Assert(t, cluster != nil)
-	err := cluster.Do()
+	err = clusterInfo.Do()
 	tests.Assert(t, err != nil)
-	tests.Assert(t, strings.Contains(b.String(), "Unable to send "))
+
 }
