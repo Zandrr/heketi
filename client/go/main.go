@@ -29,6 +29,12 @@ func init() {
 
 	flag.StringVar(&options.Url, "server", "", "server url goes here.")
 
+	flag.Usage = func() {
+		fmt.Println("USAGE: \n")
+		fmt.Println("heketi cluster <n>\n")
+		fmt.Println("where n can be one of the following: \n")
+		fmt.Println("create <id> \n info <id> \n list \n destroy <id>")
+	}
 }
 
 // ------ Main
@@ -46,8 +52,20 @@ func main() {
 
 	for _, cmd := range cmds {
 		if flag.Arg(0) == cmd.Name() {
-			cmd.Parse(flag.Args()[1:])
-			cmd.Do()
+
+			//check for parse err
+			err := cmd.Parse(flag.Args()[1:])
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			//check for do err
+			Doerr := cmd.Do()
+			if Doerr != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			return
 		}
 	}

@@ -19,15 +19,11 @@ package commands
 import (
 	"errors"
 	"flag"
-	"fmt"
 	"io"
 	"os"
 )
 
 type ClusterCommand struct {
-	// Generic stuff.  This is called
-	// embedding.  In other words, the members in
-	// the struct below are here also
 	Cmd
 
 	// Subcommands available to this command
@@ -55,9 +51,6 @@ func NewClusterCommand(options *Options) *ClusterCommand {
 	}
 
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
-	cmd.flags.Usage = func() {
-		fmt.Println("Hello from CLUSTER usage")
-	}
 
 	return cmd
 }
@@ -68,13 +61,21 @@ func (a *ClusterCommand) Name() string {
 }
 
 func (a *ClusterCommand) Parse(args []string) error {
-
 	// Parse our flags here
+	a.flags.Parse(args)
+
+	//check number of args
+	if len(a.flags.Args()) < 1 {
+		return errors.New("Not enough arguments")
+	}
 
 	// Check which of the subcommands we need to call the .Parse function
 	for _, cmd := range a.cmds {
-		if args[0] == cmd.Name() {
-			cmd.Parse(args[1:])
+		if a.flags.Arg(0) == cmd.Name() {
+			err := cmd.Parse(a.flags.Args()[1:])
+			if err != nil {
+				return err
+			}
 			// Save this command for later use
 			a.cmd = cmd
 
@@ -87,8 +88,6 @@ func (a *ClusterCommand) Parse(args []string) error {
 }
 
 func (a *ClusterCommand) Do() error {
-
-	// Call cmd.Do()
 
 	return a.cmd.Do()
 

@@ -39,9 +39,6 @@ func NewGetClusterListCommand(options *Options) *GetClusterListCommand {
 	cmd.name = "list"
 	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
-	cmd.flags.Usage = func() {
-		fmt.Println("Hello from my list")
-	}
 
 	return cmd
 }
@@ -54,7 +51,6 @@ func (a *GetClusterListCommand) Name() string {
 func (a *GetClusterListCommand) Parse(args []string) error {
 	// a.flags.Parse(args)
 	if len(args) > 0 {
-		fmt.Println("Too many arguments!")
 		return errors.New("Too many arguments!")
 	}
 	return nil

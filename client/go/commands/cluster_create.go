@@ -37,9 +37,6 @@ func NewCreateNewClusterCommand(options *Options) *CreateNewClusterCommand {
 	cmd.name = "create"
 	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
-	cmd.flags.Usage = func() {
-		fmt.Println("Hello from my create")
-	}
 
 	return cmd
 }
@@ -51,7 +48,6 @@ func (a *CreateNewClusterCommand) Name() string {
 
 func (a *CreateNewClusterCommand) Parse(args []string) error {
 	if len(args) > 0 {
-		fmt.Println("Too many arguments!")
 		return errors.New("Too many arguments!")
 	}
 	fmt.Println(len(args))

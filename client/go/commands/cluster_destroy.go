@@ -42,9 +42,6 @@ func NewDestroyClusterCommand(options *Options) *DestroyClusterCommand {
 	cmd.name = "destroy"
 	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
-	cmd.flags.Usage = func() {
-		fmt.Println("Hello from my destroy")
-	}
 
 	return cmd
 }
@@ -55,6 +52,12 @@ func (a *DestroyClusterCommand) Name() string {
 }
 
 func (a *DestroyClusterCommand) Parse(args []string) error {
+	if len(args) < 1 {
+		return errors.New("Not enough arguments!")
+	}
+	if len(args) >= 2 {
+		return errors.New("Too many arguments!")
+	}
 	a.flags.Parse(args)
 	a.clusterId = a.flags.Arg(0)
 	return nil
