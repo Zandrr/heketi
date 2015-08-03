@@ -49,8 +49,6 @@ func main() {
 		os.Exit(1)
 	}
 	cmds := commands.Commands{
-		commands.NewArithCommand(),
-		commands.NewEchoCommand(),
 		commands.NewClusterCommand(&options),
 	}
 
