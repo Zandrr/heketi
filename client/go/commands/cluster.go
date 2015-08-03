@@ -24,16 +24,12 @@ import (
 
 type ClusterCommand struct {
 	Cmd
-
-	// Subcommands available to this command
-	cmds Commands
-
+	cmds    Commands
 	options *Options
-
-	// Subcommand
-	cmd Command
+	cmd     Command
 }
 
+//function to create new cluster command
 func NewClusterCommand(options *Options) *ClusterCommand {
 	godbc.Require(options != nil)
 	godbc.Require(options.Url != "")
@@ -61,7 +57,6 @@ func (a *ClusterCommand) Name() string {
 }
 
 func (a *ClusterCommand) Parse(args []string) error {
-	// Parse our flags here
 	a.flags.Parse(args)
 
 	//check number of args
@@ -76,7 +71,6 @@ func (a *ClusterCommand) Parse(args []string) error {
 			if err != nil {
 				return err
 			}
-			// Save this command for later use
 			a.cmd = cmd
 
 			return nil

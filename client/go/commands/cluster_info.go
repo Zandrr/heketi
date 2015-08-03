@@ -26,9 +26,6 @@ import (
 )
 
 type GetClusterInfoCommand struct {
-	// Generic stuff.  This is called
-	// embedding.  In other words, the members in
-	// the struct below are here also
 	Cmd
 	options   *Options
 	clusterId string
@@ -62,7 +59,6 @@ func (a *GetClusterInfoCommand) Parse(args []string) error {
 }
 
 func (a *GetClusterInfoCommand) Do() error {
-	//set url
 	url := a.options.Url
 
 	//do http GET and check if sent to server
@@ -89,17 +85,17 @@ func (a *GetClusterInfoCommand) Do() error {
 		return err
 	}
 
-	//if all is well, print stuff
-	//TODO FIX
-	fmt.Fprintf(stdout, "For cluster: %v ", a.clusterId+"\n")
-	fmt.Println("Nodes are: \n")
+	//print revelent results
+	s := "For cluster: " + a.clusterId + " \n" + "Nodes are: \n"
 	for _, node := range body.Nodes {
-		fmt.Println(node)
-	}
-	fmt.Println("Volumes are: \n")
-	for _, volume := range body.Volumes {
-		fmt.Println(volume)
+		s += node + "\n"
 	}
 
+	s += "Volumes are: \n"
+	for _, volume := range body.Volumes {
+		s += volume + "\n"
+	}
+
+	fmt.Fprintf(stdout, s)
 	return nil
 }

@@ -20,18 +20,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	// "github.com/heketi/heketi/apps/glusterfs"
 	"github.com/heketi/heketi/utils"
-	// "github.com/heketi/heketi/apps/glusterfs"
 	"net/http"
-	// "github.com/heketi/heketi/client/go/utils"
-	// "net/http"
 )
 
 type DestroyClusterCommand struct {
-	// Generic stuff.  This is called
-	// embedding.  In other words, the members in
-	// the struct below are here also
 	Cmd
 	options   *Options
 	clusterId string

@@ -23,13 +23,9 @@ import (
 	"github.com/heketi/heketi/apps/glusterfs"
 	"github.com/heketi/heketi/utils"
 	"net/http"
-	// "github.com/heketi/heketi/client/go/utils"
 )
 
 type GetClusterListCommand struct {
-	// Generic stuff.  This is called
-	// embedding.  In other words, the members in
-	// the struct below are here also
 	Cmd
 	options *Options
 }
