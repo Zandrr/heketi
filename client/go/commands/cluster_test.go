@@ -27,6 +27,128 @@ import (
 	"testing"
 )
 
+/*** GENERAL COMMAND LINE TESTS BEGIN ***/
+
+func TestNewClusterCommand(t *testing.T) {
+
+	options := &Options{
+		Url: "soaps",
+	}
+
+	//assert options are correct
+	c := NewClusterCommand(options)
+	tests.Assert(t, c.options == options)
+	tests.Assert(t, c.name == "cluster")
+	tests.Assert(t, c.flags != nil)
+	tests.Assert(t, len(c.cmds) == 4)
+}
+
+//tests too little args
+func TestClusterCommandTooLittleArguments(t *testing.T) {
+	defer os.Remove("heketi.db")
+
+	// Create the app
+	app := glusterfs.NewApp()
+	defer app.Close()
+	router := mux.NewRouter()
+	app.SetRoutes(router)
+
+	// Setup the server
+	ts := httptest.NewServer(router)
+	defer ts.Close()
+
+	//set options
+	options := &Options{
+		Url: ts.URL,
+	}
+
+	//create b to get values of stdout
+	var b bytes.Buffer
+	defer tests.Patch(&stdout, &b).Restore()
+
+	ClusterCommand := NewClusterCommand(options)
+
+	//too little args
+	var str = []string{}
+	err := ClusterCommand.Parse(str)
+
+	tests.Assert(t, err != nil, err)
+	tests.Assert(t, strings.Contains(err.Error(), "Not enough arguments"), err.Error())
+
+}
+
+//tests too many arguments
+func TestClusterCommandTooManyArguments(t *testing.T) {
+	defer os.Remove("heketi.db")
+
+	// Create the app
+	app := glusterfs.NewApp()
+	defer app.Close()
+	router := mux.NewRouter()
+	app.SetRoutes(router)
+
+	// Setup the server
+	ts := httptest.NewServer(router)
+	defer ts.Close()
+
+	//set options
+	options := &Options{
+		Url: ts.URL,
+	}
+
+	//create b to get values of stdout
+	var b bytes.Buffer
+	defer tests.Patch(&stdout, &b).Restore()
+
+	ClusterCommand := NewClusterCommand(options)
+
+	//add too many args
+	var str = []string{"create", "one", "two", "three"}
+	err := ClusterCommand.Parse(str)
+
+	tests.Assert(t, err != nil, err)
+	tests.Assert(t, strings.Contains(err.Error(), "Too many arguments"), err.Error())
+
+}
+
+//tests command not found
+func TestClusterCommandNotFound(t *testing.T) {
+	defer os.Remove("heketi.db")
+
+	// Create the app
+	app := glusterfs.NewApp()
+	defer app.Close()
+	router := mux.NewRouter()
+	app.SetRoutes(router)
+
+	// Setup the server
+	ts := httptest.NewServer(router)
+	defer ts.Close()
+
+	//set options
+	options := &Options{
+		Url: ts.URL,
+	}
+
+	//create b to get values of stdout
+	var b bytes.Buffer
+	defer tests.Patch(&stdout, &b).Restore()
+
+	ClusterCommand := NewClusterCommand(options)
+
+	//make first arg not a recognized command
+	var str = []string{"NotACommand"}
+	err := ClusterCommand.Parse(str)
+
+	tests.Assert(t, err != nil, err)
+	tests.Assert(t, strings.Contains(err.Error(), "Command not found"), err.Error())
+
+}
+
+/*** GENERAL COMMAND LINE TESTS END ***/
+
+/*** MAIN TESTS BEGIN ***/
+
 //tests cluster info and destroy
 func TestNewGetClusterInfoAndDestroy(t *testing.T) {
 	defer os.Remove("heketi.db")
@@ -82,6 +204,40 @@ func TestNewGetClusterInfoAndDestroy(t *testing.T) {
 
 }
 
+//tests for bad id
+func TestNewGetClusterInfoBadID(t *testing.T) {
+	defer os.Remove("heketi.db")
+
+	// Create the app
+	app := glusterfs.NewApp()
+	defer app.Close()
+	router := mux.NewRouter()
+	app.SetRoutes(router)
+
+	// Setup the server
+	ts := httptest.NewServer(router)
+	defer ts.Close()
+
+	//set options
+	options := &Options{
+		Url: ts.URL,
+	}
+
+	//create b to get values of stdout
+	var b bytes.Buffer
+	defer tests.Patch(&stdout, &b).Restore()
+
+	//set destroy id to our id
+	clusterInfo := NewGetClusterInfoCommand(options)
+	clusterInfo.clusterId = "penguins are the key to something"
+
+	//assert that cluster info Do FAILS and with bad id
+	err := clusterInfo.Do()
+	tests.Assert(t, err != nil, err)
+	tests.Assert(t, err.Error() != "")
+
+}
+
 //test cluster list
 func TestNewGetClusterList(t *testing.T) {
 	defer os.Remove("heketi.db")
@@ -123,6 +279,7 @@ func TestNewGetClusterList(t *testing.T) {
 
 	//asert stdout is correct
 	tests.Assert(t, strings.Contains(b.String(), "Clusters: "), b.String())
+	tests.Assert(t, len(b.String()) > len("Clusters : "))
 }
 
 //test cluster create

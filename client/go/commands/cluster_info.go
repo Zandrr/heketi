@@ -23,7 +23,6 @@ import (
 	"github.com/heketi/heketi/apps/glusterfs"
 	"github.com/heketi/heketi/utils"
 	"net/http"
-	// "github.com/heketi/heketi/client/go/utils"
 )
 
 type GetClusterInfoCommand struct {
@@ -75,19 +74,23 @@ func (a *GetClusterInfoCommand) Do() error {
 
 	//check status code
 	if r.StatusCode != http.StatusOK {
-		fmt.Println("status not ok")
-		return errors.New("returned with bad response")
+		s, err := utils.GetStringFromResponse(r)
+		if err != nil {
+			return err
+		}
+		return errors.New(s)
 	}
 
 	//check json response
 	var body glusterfs.ClusterInfoResponse
 	err = utils.GetJsonFromResponse(r, &body)
 	if err != nil {
-		fmt.Println("bad json response from server")
+		fmt.Println("Error: Bad json response from server")
 		return err
 	}
 
 	//if all is well, print stuff
+	//TODO FIX
 	fmt.Fprintf(stdout, "For cluster: %v ", a.clusterId+"\n")
 	fmt.Println("Nodes are: \n")
 	for _, node := range body.Nodes {

@@ -14,27 +14,19 @@
 // limitations under the License.
 //
 
-package commands
+package utils
 
 import (
-	"flag"
 	"io"
-	"os"
+	"io/ioutil"
+	"net/http"
 )
 
-var (
-	stdout io.Writer = os.Stdout
-)
-
-type Command interface {
-	Name() string
-	Parse([]string) error
-	Do() error
-}
-
-type Commands []Command
-
-type Cmd struct {
-	name  string
-	flags *flag.FlagSet
+func GetStringFromResponse(r *http.Response) (string, error) {
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, r.ContentLength))
+	if err != nil {
+		return "", err
+	}
+	r.Body.Close()
+	return string(body), nil
 }

@@ -19,8 +19,7 @@ package commands
 import (
 	"errors"
 	"flag"
-	"io"
-	"os"
+	"github.com/lpabon/godbc"
 )
 
 type ClusterCommand struct {
@@ -35,11 +34,10 @@ type ClusterCommand struct {
 	cmd Command
 }
 
-var (
-	stdout io.Writer = os.Stdout
-)
-
 func NewClusterCommand(options *Options) *ClusterCommand {
+	godbc.Require(options != nil)
+	godbc.Require(options.Url != "")
+
 	cmd := &ClusterCommand{}
 	cmd.name = "cluster"
 	cmd.options = options
@@ -52,6 +50,8 @@ func NewClusterCommand(options *Options) *ClusterCommand {
 
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
 
+	godbc.Ensure(cmd.flags != nil)
+	godbc.Ensure(cmd.name == "cluster")
 	return cmd
 }
 

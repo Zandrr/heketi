@@ -20,10 +20,14 @@ import (
 	"flag"
 	"fmt"
 	"github.com/heketi/heketi/client/go/commands"
+	"io"
 	"os"
 )
 
-var options commands.Options
+var (
+	stdout  io.Writer = os.Stdout
+	options commands.Options
+)
 
 func init() {
 
@@ -41,7 +45,7 @@ func init() {
 func main() {
 	flag.Parse()
 	if options.Url == "" {
-		fmt.Println("You need a server!")
+		fmt.Fprintf(stdout, "You need a server!\n")
 		os.Exit(1)
 	}
 	cmds := commands.Commands{
@@ -56,13 +60,14 @@ func main() {
 			//check for parse err
 			err := cmd.Parse(flag.Args()[1:])
 			if err != nil {
-				fmt.Println(err)
+				fmt.Fprintf(stdout, "Parse Error: %v\n", err)
 				os.Exit(1)
 			}
 
 			//check for do err
-			Doerr := cmd.Do()
-			if Doerr != nil {
+			err = cmd.Do()
+			if err != nil {
+				fmt.Fprintf(stdout, "Do Error: %v\n", err)
 				fmt.Println(err)
 				os.Exit(1)
 			}

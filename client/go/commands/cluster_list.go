@@ -70,22 +70,26 @@ func (a *GetClusterListCommand) Do() error {
 
 	//check status code
 	if r.StatusCode != http.StatusOK {
-		fmt.Println("status not ok")
-		return errors.New("returned with bad response")
+		s, err := utils.GetStringFromResponse(r)
+		if err != nil {
+			return err
+		}
+		return errors.New(s)
 	}
 
 	//check json response
 	var body glusterfs.ClusterListResponse
 	err = utils.GetJsonFromResponse(r, &body)
 	if err != nil {
-		fmt.Println("bad json response from server")
+		fmt.Println("Error: Bad json response from server")
 		return err
 	}
 
 	//if all is well, print stuff
-	fmt.Fprintf(stdout, "Clusters: \n")
+	s := "Clusters: \n"
 	for _, cluster := range body.Clusters {
-		fmt.Println(cluster)
+		s += cluster + "\n"
 	}
+	fmt.Fprintf(stdout, s)
 	return nil
 }

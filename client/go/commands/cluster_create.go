@@ -68,8 +68,11 @@ func (a *CreateNewClusterCommand) Do() error {
 
 	//check status code
 	if r.StatusCode != http.StatusCreated {
-		fmt.Println("status not ok")
-		return errors.New("returned with bad response")
+		s, err := utils.GetStringFromResponse(r)
+		if err != nil {
+			return err
+		}
+		return errors.New(s)
 	}
 
 	//check json response

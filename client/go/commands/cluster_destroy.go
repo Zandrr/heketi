@@ -21,7 +21,7 @@ import (
 	"flag"
 	"fmt"
 	// "github.com/heketi/heketi/apps/glusterfs"
-	// "github.com/heketi/heketi/utils"
+	"github.com/heketi/heketi/utils"
 	// "github.com/heketi/heketi/apps/glusterfs"
 	"net/http"
 	// "github.com/heketi/heketi/client/go/utils"
@@ -84,8 +84,11 @@ func (a *DestroyClusterCommand) Do() error {
 
 	//check status code
 	if r.StatusCode != http.StatusOK {
-		fmt.Println("status not ok")
-		return errors.New("returned with bad response")
+		s, err := utils.GetStringFromResponse(r)
+		if err != nil {
+			return err
+		}
+		return errors.New(s)
 	}
 
 	//if all is well, print stuff
