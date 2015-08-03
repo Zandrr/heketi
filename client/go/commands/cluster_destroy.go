@@ -44,7 +44,7 @@ func (a *DestroyClusterCommand) Name() string {
 
 }
 
-func (a *DestroyClusterCommand) Parse(args []string) error {
+func (a *DestroyClusterCommand) Exec(args []string) error {
 	if len(args) < 1 {
 		return errors.New("Not enough arguments!")
 	}
@@ -53,11 +53,7 @@ func (a *DestroyClusterCommand) Parse(args []string) error {
 	}
 	a.flags.Parse(args)
 	a.clusterId = a.flags.Arg(0)
-	return nil
 
-}
-
-func (a *DestroyClusterCommand) Do() error {
 	//set url
 	url := a.options.Url
 
@@ -88,4 +84,5 @@ func (a *DestroyClusterCommand) Do() error {
 	fmt.Fprintf(stdout, "Successfully destroyed cluster with id: %v ", a.clusterId)
 
 	return nil
+
 }

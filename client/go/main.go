@@ -55,18 +55,10 @@ func main() {
 	for _, cmd := range cmds {
 		if flag.Arg(0) == cmd.Name() {
 
-			//check for parse err
-			err := cmd.Parse(flag.Args()[1:])
+			//check for err
+			err := cmd.Exec(flag.Args()[1:])
 			if err != nil {
-				fmt.Fprintf(stdout, "Parse Error: %v\n", err)
-				os.Exit(1)
-			}
-
-			//check for do err
-			err = cmd.Do()
-			if err != nil {
-				fmt.Fprintf(stdout, "Do Error: %v\n", err)
-				fmt.Println(err)
+				fmt.Fprintf(stdout, "Error: %v\n", err)
 				os.Exit(1)
 			}
 			return

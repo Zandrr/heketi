@@ -46,16 +46,10 @@ func (a *CreateNewClusterCommand) Name() string {
 
 }
 
-func (a *CreateNewClusterCommand) Parse(args []string) error {
+func (a *CreateNewClusterCommand) Exec(args []string) error {
 	if len(args) > 0 {
 		return errors.New("Too many arguments!")
 	}
-	fmt.Println(len(args))
-	return nil
-
-}
-
-func (a *CreateNewClusterCommand) Do() error {
 	//set url
 	url := a.options.Url
 
@@ -86,4 +80,5 @@ func (a *CreateNewClusterCommand) Do() error {
 	//if all is well, print stuff
 	fmt.Fprintf(stdout, "Cluster id:%v", body.Id)
 	return nil
+
 }

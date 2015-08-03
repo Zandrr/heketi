@@ -45,7 +45,7 @@ func (a *GetClusterInfoCommand) Name() string {
 
 }
 
-func (a *GetClusterInfoCommand) Parse(args []string) error {
+func (a *GetClusterInfoCommand) Exec(args []string) error {
 	if len(args) < 1 {
 		return errors.New("Not enough arguments!")
 	}
@@ -54,11 +54,7 @@ func (a *GetClusterInfoCommand) Parse(args []string) error {
 	}
 	a.flags.Parse(args)
 	a.clusterId = a.flags.Arg(0)
-	return nil
 
-}
-
-func (a *GetClusterInfoCommand) Do() error {
 	url := a.options.Url
 
 	//do http GET and check if sent to server
@@ -98,4 +94,5 @@ func (a *GetClusterInfoCommand) Do() error {
 
 	fmt.Fprintf(stdout, s)
 	return nil
+
 }

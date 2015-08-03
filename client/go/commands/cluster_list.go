@@ -44,16 +44,11 @@ func (a *GetClusterListCommand) Name() string {
 
 }
 
-func (a *GetClusterListCommand) Parse(args []string) error {
+func (a *GetClusterListCommand) Exec(args []string) error {
 	// a.flags.Parse(args)
 	if len(args) > 0 {
 		return errors.New("Too many arguments!")
 	}
-	return nil
-
-}
-
-func (a *GetClusterListCommand) Do() error {
 	//set url
 	url := a.options.Url
 
@@ -88,4 +83,5 @@ func (a *GetClusterListCommand) Do() error {
 	}
 	fmt.Fprintf(stdout, s)
 	return nil
+
 }

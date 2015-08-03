@@ -56,7 +56,7 @@ func (a *ClusterCommand) Name() string {
 
 }
 
-func (a *ClusterCommand) Parse(args []string) error {
+func (a *ClusterCommand) Exec(args []string) error {
 	a.flags.Parse(args)
 
 	//check number of args
@@ -67,7 +67,7 @@ func (a *ClusterCommand) Parse(args []string) error {
 	// Check which of the subcommands we need to call the .Parse function
 	for _, cmd := range a.cmds {
 		if a.flags.Arg(0) == cmd.Name() {
-			err := cmd.Parse(a.flags.Args()[1:])
+			err := cmd.Exec(a.flags.Args()[1:])
 			if err != nil {
 				return err
 			}
@@ -81,8 +81,8 @@ func (a *ClusterCommand) Parse(args []string) error {
 	return errors.New("Command not found")
 }
 
-func (a *ClusterCommand) Do() error {
+// func (a *ClusterCommand) Do() error {
 
-	return a.cmd.Do()
+// 	return a.cmd.Do()
 
-}
+// }
