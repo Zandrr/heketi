@@ -28,7 +28,6 @@ import (
 
 type CreateNewClusterCommand struct {
 	Cmd
-
 	options *Options
 }
 
@@ -47,9 +46,12 @@ func (a *CreateNewClusterCommand) Name() string {
 }
 
 func (a *CreateNewClusterCommand) Exec(args []string) error {
+
+	//ensure length
 	if len(args) > 0 {
 		return errors.New("Too many arguments!")
 	}
+
 	//set url
 	url := a.options.Url
 
@@ -79,6 +81,7 @@ func (a *CreateNewClusterCommand) Exec(args []string) error {
 
 	//if all is well, print stuff
 	fmt.Fprintf(stdout, "Cluster id:%v", body.Id)
+
 	return nil
 
 }

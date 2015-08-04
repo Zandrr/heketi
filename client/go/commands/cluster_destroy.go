@@ -45,12 +45,16 @@ func (a *DestroyClusterCommand) Name() string {
 }
 
 func (a *DestroyClusterCommand) Exec(args []string) error {
+
+	//ensure proper number of args
 	if len(args) < 1 {
 		return errors.New("Not enough arguments!")
 	}
 	if len(args) >= 2 {
 		return errors.New("Too many arguments!")
 	}
+
+	//parse args and set id
 	a.flags.Parse(args)
 	a.clusterId = a.flags.Arg(0)
 

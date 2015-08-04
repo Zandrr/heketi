@@ -29,13 +29,14 @@ import (
 
 /*** GENERAL COMMAND LINE TESTS BEGIN ***/
 
+//tests object creation
 func TestNewClusterCommand(t *testing.T) {
 
 	options := &Options{
 		Url: "soaps",
 	}
 
-	//assert options are correct
+	//assert object creation is correct
 	c := NewClusterCommand(options)
 	tests.Assert(t, c.options == options)
 	tests.Assert(t, c.name == "cluster")
@@ -72,6 +73,7 @@ func TestClusterCommandTooLittleArguments(t *testing.T) {
 	var str = []string{}
 	err := ClusterCommand.Exec(str)
 
+	//make sure not enough args
 	tests.Assert(t, err != nil, err)
 	tests.Assert(t, strings.Contains(err.Error(), "Not enough arguments"), err.Error())
 
@@ -106,6 +108,7 @@ func TestClusterCommandTooManyArguments(t *testing.T) {
 	var str = []string{"create", "one", "two", "three"}
 	err := ClusterCommand.Exec(str)
 
+	//make sure too many args
 	tests.Assert(t, err != nil, err)
 	tests.Assert(t, strings.Contains(err.Error(), "Too many arguments"), err.Error())
 
@@ -140,6 +143,7 @@ func TestClusterCommandNotFound(t *testing.T) {
 	var str = []string{"NotACommand"}
 	err := ClusterCommand.Exec(str)
 
+	//make sure command not found
 	tests.Assert(t, err != nil, err)
 	tests.Assert(t, strings.Contains(err.Error(), "Command not found"), err.Error())
 
@@ -304,11 +308,15 @@ func TestClusterPostSuccess(t *testing.T) {
 		Url: ts.URL,
 	}
 
+	//create bytes.Buffer so we can read stdout
 	var b bytes.Buffer
 	defer tests.Patch(&stdout, &b).Restore()
 
+	//assert cluster creation
 	cluster := NewCreateNewClusterCommand(options)
 	tests.Assert(t, cluster != nil)
+
+	//execute and assert works
 	args := make([]string, 0)
 	err := cluster.Exec(args)
 	tests.Assert(t, err == nil)
@@ -332,11 +340,15 @@ func TestClusterPostFailure(t *testing.T) {
 		Url: "http://nottherightthing:8080",
 	}
 
+	//create b so we can see stdout
 	var b bytes.Buffer
 	defer tests.Patch(&stdout, &b).Restore()
 
+	//create cluster
 	cluster := NewCreateNewClusterCommand(options)
 	tests.Assert(t, cluster != nil)
+
+	//execute
 	var args = make([]string, 0)
 	err := cluster.Exec(args)
 	tests.Assert(t, err != nil)

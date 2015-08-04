@@ -46,12 +46,16 @@ func (a *GetClusterInfoCommand) Name() string {
 }
 
 func (a *GetClusterInfoCommand) Exec(args []string) error {
+
+	//ensure correct number of args
 	if len(args) < 1 {
 		return errors.New("Not enough arguments!")
 	}
 	if len(args) >= 2 {
 		return errors.New("Too many arguments!")
 	}
+
+	//parse flags and set id
 	a.flags.Parse(args)
 	a.clusterId = a.flags.Arg(0)
 

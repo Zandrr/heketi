@@ -22,6 +22,7 @@ import (
 	"os"
 )
 
+//make stdout "global" to command package
 var (
 	stdout io.Writer = os.Stdout
 )

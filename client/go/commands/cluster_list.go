@@ -45,8 +45,11 @@ func (a *GetClusterListCommand) Name() string {
 }
 
 func (a *GetClusterListCommand) Exec(args []string) error {
+
+	//ensure number of args
 	if len(args) > 0 {
 		return errors.New("Too many arguments!")
+
 	}
 	//set url
 	url := a.options.Url

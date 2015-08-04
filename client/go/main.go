@@ -38,16 +38,22 @@ func init() {
 		fmt.Println("heketi cluster <n>\n")
 		fmt.Println("where n can be one of the following: \n")
 		fmt.Println("create <id> \n info <id> \n list \n destroy <id>")
+
+		//TODO:  add other first level commands
 	}
 }
 
 // ------ Main
 func main() {
 	flag.Parse()
+
+	//ensure that we pass a server
 	if options.Url == "" {
 		fmt.Fprintf(stdout, "You need a server!\n")
 		os.Exit(1)
 	}
+
+	//all first level commands go here (cluster, node, device, volume)
 	cmds := commands.Commands{
 		commands.NewClusterCommand(&options),
 	}

@@ -31,9 +31,12 @@ type ClusterCommand struct {
 
 //function to create new cluster command
 func NewClusterCommand(options *Options) *ClusterCommand {
+
+	//require before we do any work
 	godbc.Require(options != nil)
 	godbc.Require(options.Url != "")
 
+	//create ClusterCommand object
 	cmd := &ClusterCommand{}
 	cmd.name = "cluster"
 	cmd.options = options
@@ -44,8 +47,10 @@ func NewClusterCommand(options *Options) *ClusterCommand {
 		NewDestroyClusterCommand(options),
 	}
 
+	//create flags
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
 
+	//ensure before we return
 	godbc.Ensure(cmd.flags != nil)
 	godbc.Ensure(cmd.name == "cluster")
 	return cmd
