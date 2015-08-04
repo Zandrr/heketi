@@ -19,7 +19,6 @@ package commands
 import (
 	"errors"
 	"flag"
-	"fmt"
 	"github.com/lpabon/godbc"
 )
 
@@ -27,7 +26,6 @@ type ClusterCommand struct {
 	Cmd
 	cmds    Commands
 	options *Options
-	json    string
 }
 
 //function to create new cluster command
@@ -52,7 +50,6 @@ func NewClusterCommand(options *Options) *ClusterCommand {
 
 	//create flags
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
-	cmd.flags.StringVar(&cmd.json, "json", "yes", "Json flag to return as json")
 
 	//ensure before we return
 	godbc.Ensure(cmd.flags != nil)
@@ -80,7 +77,6 @@ func (a *ClusterCommand) Exec(args []string) error {
 			if err != nil {
 				return err
 			}
-			fmt.Println("args are %v ", a.flags.Args())
 			return nil
 		}
 	}
