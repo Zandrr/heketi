@@ -80,9 +80,3 @@ func (a *ClusterCommand) Exec(args []string) error {
 	// Done
 	return errors.New("Command not found")
 }
-
-// func (a *ClusterCommand) Do() error {
-
-// 	return a.cmd.Do()
-
-// }

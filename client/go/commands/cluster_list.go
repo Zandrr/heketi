@@ -45,7 +45,6 @@ func (a *GetClusterListCommand) Name() string {
 }
 
 func (a *GetClusterListCommand) Exec(args []string) error {
-	// a.flags.Parse(args)
 	if len(args) > 0 {
 		return errors.New("Too many arguments!")
 	}

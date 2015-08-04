@@ -28,8 +28,6 @@ var (
 
 type Command interface {
 	Name() string
-	// Parse([]string) error
-	// Do() error
 	Exec([]string) error
 }
 
