@@ -54,6 +54,9 @@ func (a *GetClusterListCommand) Name() string {
 
 func (a *GetClusterListCommand) Exec(args []string) error {
 
+	//parse args
+	a.flags.Parse(args)
+
 	s := a.flags.Args()
 
 	//ensure number of args
@@ -89,11 +92,11 @@ func (a *GetClusterListCommand) Exec(args []string) error {
 	}
 
 	//if all is well, print stuff
-	s := "Clusters: \n"
+	str := "Clusters: \n"
 	for _, cluster := range body.Clusters {
-		s += cluster + "\n"
+		str += cluster + "\n"
 	}
-	fmt.Fprintf(stdout, s)
+	fmt.Fprintf(stdout, str)
 	return nil
 
 }
