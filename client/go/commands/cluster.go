@@ -19,8 +19,26 @@ package commands
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"github.com/lpabon/godbc"
 )
+
+var usageTemplate = `Cluster is a command used for managing heketi clusters.
+
+Usage:
+
+	heketi -server [server] [options] cluster [subcommands]
+
+The subcommands are:
+	
+	create         Creates a new cluster for Heketi to manage.
+	list           Returns a list of all clusters on the specified server.
+	info [id]      Returns information about a specific cluster.
+	destroy [id]   Destroys cluster with specified id. 
+
+Use "heketi cluster [subcommand] -help" for more information about a subcommand
+
+`
 
 type ClusterCommand struct {
 	Cmd
@@ -50,6 +68,10 @@ func NewClusterCommand(options *Options) *ClusterCommand {
 
 	//create flags
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
+
+	cmd.flags.Usage = func() {
+		fmt.Println(usageTemplate)
+	}
 
 	//ensure before we return
 	godbc.Ensure(cmd.flags != nil)
