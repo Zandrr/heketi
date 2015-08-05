@@ -25,37 +25,36 @@ import (
 )
 
 var (
-	stdout  io.Writer = os.Stdout
-	options commands.Options
-)
-var usageTemplate = `Heketi is a tool for managing gluster volumes.
+	stdout            io.Writer = os.Stdout
+	options           commands.Options
+	usageTemplateMain = `Heketi is a tool for managing gluster volumes.
 
 Usage:
 
-	heketi -server [server] [options] command [arguments]
+    heketi -server [server] [options] command [arguments]
 
 Options are:
 
-	-json      Returns any command in JSON format.
+    -json      Returns any command in JSON format.
 
 The commands are:
-	
-	cluster    Manage a cluster (a set of storage nodes)
-	node       Register a storage system to be managed
-	device     Manage raw devices in a cluster
-	volume     Manage a network file system of a certain size available to be used by clients.
+    
+    cluster    Manage a cluster (a set of storage nodes)
+    node       Register a storage system to be managed
+    device     Manage raw devices in a cluster
+    volume     Manage a network file system of a certain size available to be used by clients.
 
 Use "heketi [command] -help" for more information about a command
 
 `
+)
 
 func init() {
 
 	flag.StringVar(&options.Url, "server", "", "server url goes here.")
 
 	flag.Usage = func() {
-		fmt.Println(usageTemplate)
-		return
+		fmt.Println(usageTemplateMain)
 	}
 }
 
