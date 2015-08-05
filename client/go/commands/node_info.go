@@ -23,6 +23,7 @@ import (
 	"github.com/heketi/heketi/apps/glusterfs"
 	"github.com/heketi/heketi/utils"
 	"net/http"
+	"strconv"
 )
 
 type GetNodeInfoCommand struct {
@@ -46,13 +47,15 @@ func (a *GetNodeInfoCommand) Name() string {
 }
 
 func (a *GetNodeInfoCommand) Exec(args []string) error {
+
+	a.flags.Parse(args)
+
 	if len(args) < 1 {
 		return errors.New("Not enough arguments!")
 	}
 	if len(args) >= 2 {
 		return errors.New("Too many arguments!")
 	}
-	a.flags.Parse(args)
 	a.nodeId = a.flags.Arg(0)
 	url := a.options.Url
 
@@ -72,30 +75,39 @@ func (a *GetNodeInfoCommand) Exec(args []string) error {
 		return errors.New(s)
 	}
 
-	//check json response
-	var body glusterfs.NodeInfoResponse
-	err = utils.GetJsonFromResponse(r, &body)
-	if err != nil {
-		fmt.Println("Error: Bad json response from server")
-		return err
-	}
+	if a.options.Json {
+		// Print JSON body
+		s, err := utils.GetStringFromResponse(r)
+		if err != nil {
+			return err
+		}
+		fmt.Fprint(stdout, s)
+	} else {
 
-	//print revelent results
-	s := "For node: " + a.nodeId + " \n in cluster " + body.ClusterId + "\n in zone " + string(body.Zone) + "\n Manage hostnames are: \n"
-	for _, hostname := range body.Hostnames.Manage {
-		s += hostname + "\n"
-	}
-	s += "Storage hostnames are: \n"
-	for _, hostname := range body.Hostnames.Storage {
-		s += hostname + "\n"
-	}
-	s += "Devices are: \n"
-	for _, device := range body.DevicesInfo {
-		s += "Name is: " + device.Name
+		//check json response
+		var body glusterfs.NodeInfoResponse
+		err = utils.GetJsonFromResponse(r, &body)
+		if err != nil {
+			fmt.Println("Error: Bad json response from server")
+			return err
+		}
+		//print revelent results
+		s := "Node: " + a.nodeId + "\n\nZone: " + strconv.Itoa(body.Zone) + "\n\nCluster: " + body.ClusterId + "\n\nManage hostnames:\n"
+		for _, hostname := range body.Hostnames.Manage {
+			s += hostname + "\n"
+		}
+		s += "\nStorage hostnames:\n"
+		for _, hostname := range body.Hostnames.Storage {
+			s += hostname + "\n"
+		}
+		s += "\nDevices:\n"
+		for _, device := range body.DevicesInfo {
+			s += device.Name + "\n"
 
-	}
+		}
 
-	fmt.Fprintf(stdout, s)
+		fmt.Fprintf(stdout, s)
+	}
 	return nil
 
 }

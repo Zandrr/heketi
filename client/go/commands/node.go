@@ -38,7 +38,7 @@ func NewNodeCommand(options *Options) *NodeCommand {
 	cmd.name = "node"
 	cmd.options = options
 	cmd.cmds = Commands{
-		// NewCreateNewNodeCommand(options),
+		NewNodeAddCommand(options),
 		NewGetNodeInfoCommand(options),
 		// NewDestroyNodeCommand(options),
 	}
