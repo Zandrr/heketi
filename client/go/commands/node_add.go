@@ -59,6 +59,10 @@ func (a *NodeAddCommand) Exec(args []string) error {
 	//parse args
 	a.flags.Parse(args)
 
+	s := a.flags.Args()
+	if len(s) != 0 {
+		return errors.New("Too many arguments!")
+	}
 	//set url
 	url := a.options.Url
 

@@ -20,46 +20,37 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/heketi/heketi/apps/glusterfs"
 	"github.com/heketi/heketi/utils"
-	"github.com/lpabon/godbc"
 	"net/http"
 )
 
-type GetClusterInfoCommand struct {
+type NodeDestroyCommand struct {
 	Cmd
 	options *Options
 }
 
-func NewGetClusterInfoCommand(options *Options) *GetClusterInfoCommand {
-
-	godbc.Require(options != nil)
-	godbc.Require(options.Url != "")
-
-	cmd := &GetClusterInfoCommand{}
-	cmd.name = "info"
+func NewNodeDestroyCommand(options *Options) *NodeDestroyCommand {
+	cmd := &NodeDestroyCommand{}
+	cmd.name = "destroy"
 	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
-
-	godbc.Ensure(cmd.flags != nil)
-	godbc.Ensure(cmd.name == "info")
 
 	return cmd
 }
 
-func (a *GetClusterInfoCommand) Name() string {
+func (a *NodeDestroyCommand) Name() string {
 	return a.name
 
 }
 
-func (a *GetClusterInfoCommand) Exec(args []string) error {
-	//parse flags and set id
+func (a *NodeDestroyCommand) Exec(args []string) error {
+
+	//parse args
 	a.flags.Parse(args)
 
 	s := a.flags.Args()
-	fmt.Println(len(s))
 
-	//ensure correct number of args
+	//ensure proper number of args
 	if len(s) < 1 {
 		return errors.New("Not enough arguments!")
 	}
@@ -67,12 +58,21 @@ func (a *GetClusterInfoCommand) Exec(args []string) error {
 		return errors.New("Too many arguments!")
 	}
 
-	clusterId := a.flags.Arg(0)
+	//set clusterId
+	nodeId := a.flags.Arg(0)
 
+	//set url
 	url := a.options.Url
 
-	//do http GET and check if sent to server
-	r, err := http.Get(url + "/clusters/" + clusterId)
+	//create destroy request object
+	req, err := http.NewRequest("DELETE", url+"/nodes/"+nodeId, nil)
+	if err != nil {
+		fmt.Fprintf(stdout, "Error: Unable to initiate destroy: %v", err)
+		return err
+	}
+
+	//destroy node
+	r, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Fprintf(stdout, "Error: Unable to send command to server: %v", err)
 		return err
@@ -86,34 +86,12 @@ func (a *GetClusterInfoCommand) Exec(args []string) error {
 		}
 		return errors.New(s)
 	}
-	if a.options.Json {
-		// Print JSON body
-		s, err := utils.GetStringFromResponse(r)
-		if err != nil {
-			return err
-		}
-		fmt.Fprint(stdout, s)
+
+	//if all is well, print stuff
+	if !a.options.Json {
+		fmt.Fprintf(stdout, "Successfully destroyed node with id: %v ", nodeId)
 	} else {
-
-		//check json response
-		var body glusterfs.ClusterInfoResponse
-		err = utils.GetJsonFromResponse(r, &body)
-		if err != nil {
-			fmt.Println("Error: Bad json response from server")
-			return err
-		}
-
-		//print revelent results
-		str := "Cluster: " + clusterId + " \n" + "Nodes: \n"
-		for _, node := range body.Nodes {
-			str += node + "\n"
-		}
-
-		str += "Volumes: \n"
-		for _, volume := range body.Volumes {
-			str += volume + "\n"
-		}
-		fmt.Fprintf(stdout, str)
+		return errors.New("Cannot return json for node destroy")
 	}
 	return nil
 

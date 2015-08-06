@@ -40,7 +40,7 @@ func NewNodeCommand(options *Options) *NodeCommand {
 	cmd.cmds = Commands{
 		NewNodeAddCommand(options),
 		NewGetNodeInfoCommand(options),
-		// NewDestroyNodeCommand(options),
+		NewNodeDestroyCommand(options),
 	}
 
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
