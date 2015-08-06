@@ -22,7 +22,9 @@ import (
 	"fmt"
 	"github.com/heketi/heketi/apps/glusterfs"
 	"github.com/heketi/heketi/utils"
+	"github.com/lpabon/godbc"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -32,11 +34,22 @@ type GetNodeInfoCommand struct {
 	nodeId  string
 }
 
-func NewGetNodeInfoCommand(options *Options) *GetNodeInfoCommand {
+func NewNodeInfoCommand(options *Options) *GetNodeInfoCommand {
+
+	godbc.Require(options != nil)
+
 	cmd := &GetNodeInfoCommand{}
 	cmd.name = "info"
 	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
+
+	//usage on -help
+	cmd.flags.Usage = func() {
+		fmt.Println(usageTemplateNodeInfo)
+	}
+
+	godbc.Ensure(cmd.flags != nil)
+	godbc.Ensure(cmd.name == "info")
 
 	return cmd
 }
@@ -49,6 +62,12 @@ func (a *GetNodeInfoCommand) Name() string {
 func (a *GetNodeInfoCommand) Exec(args []string) error {
 
 	a.flags.Parse(args)
+
+	//ensure we have Url
+	if a.options.Url == "" {
+		fmt.Fprintf(stdout, "You need a server!\n")
+		os.Exit(1)
+	}
 
 	if len(args) < 1 {
 		return errors.New("Not enough arguments!")

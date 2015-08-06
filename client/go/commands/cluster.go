@@ -42,10 +42,10 @@ func NewClusterCommand(options *Options) *ClusterCommand {
 
 	//setup subcommands
 	cmd.cmds = Commands{
-		NewCreateNewClusterCommand(options),
-		NewGetClusterInfoCommand(options),
-		NewGetClusterListCommand(options),
-		NewDestroyClusterCommand(options),
+		NewClusterCreateCommand(options),
+		NewClusterInfoCommand(options),
+		NewClusterListCommand(options),
+		NewClusterDestroyCommand(options),
 	}
 
 	//create flags

@@ -21,7 +21,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/heketi/heketi/utils"
+	"github.com/lpabon/godbc"
 	"net/http"
+	"os"
 )
 
 type NodeDestroyCommand struct {
@@ -30,10 +32,21 @@ type NodeDestroyCommand struct {
 }
 
 func NewNodeDestroyCommand(options *Options) *NodeDestroyCommand {
+
+	godbc.Require(options != nil)
+
 	cmd := &NodeDestroyCommand{}
 	cmd.name = "destroy"
 	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
+
+	//usage on -help
+	cmd.flags.Usage = func() {
+		fmt.Println(usageTemplateNodeDestroy)
+	}
+
+	godbc.Ensure(cmd.flags != nil)
+	godbc.Ensure(cmd.name == "destroy")
 
 	return cmd
 }
@@ -47,6 +60,12 @@ func (a *NodeDestroyCommand) Exec(args []string) error {
 
 	//parse args
 	a.flags.Parse(args)
+
+	//ensure we have Url
+	if a.options.Url == "" {
+		fmt.Fprintf(stdout, "You need a server!\n")
+		os.Exit(1)
+	}
 
 	s := a.flags.Args()
 

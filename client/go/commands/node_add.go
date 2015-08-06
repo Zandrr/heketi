@@ -24,7 +24,9 @@ import (
 	"fmt"
 	"github.com/heketi/heketi/apps/glusterfs"
 	"github.com/heketi/heketi/utils"
+	"github.com/lpabon/godbc"
 	"net/http"
+	"os"
 )
 
 type NodeAddCommand struct {
@@ -37,6 +39,9 @@ type NodeAddCommand struct {
 }
 
 func NewNodeAddCommand(options *Options) *NodeAddCommand {
+
+	godbc.Require(options != nil)
+
 	cmd := &NodeAddCommand{}
 	cmd.name = "add"
 	cmd.options = options
@@ -45,6 +50,14 @@ func NewNodeAddCommand(options *Options) *NodeAddCommand {
 	cmd.flags.StringVar(&cmd.clusterId, "cluster", "", "which cluster to add node to")
 	cmd.flags.StringVar(&cmd.managmentHostNames, "managment-host-name", "", "managment host name")
 	cmd.flags.StringVar(&cmd.storageHostNames, "storage-host-name", "", "storage host name")
+
+	//usage on -help
+	cmd.flags.Usage = func() {
+		fmt.Println(usageTemplateNodeAdd)
+	}
+
+	godbc.Ensure(cmd.flags != nil)
+	godbc.Ensure(cmd.name == "add")
 
 	return cmd
 }
@@ -58,6 +71,12 @@ func (a *NodeAddCommand) Exec(args []string) error {
 
 	//parse args
 	a.flags.Parse(args)
+
+	//ensure we have Url
+	if a.options.Url == "" {
+		fmt.Fprintf(stdout, "You need a server!\n")
+		os.Exit(1)
+	}
 
 	s := a.flags.Args()
 	if len(s) != 0 {

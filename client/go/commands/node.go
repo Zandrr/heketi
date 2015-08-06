@@ -19,6 +19,7 @@ package commands
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"github.com/lpabon/godbc"
 )
 
@@ -32,18 +33,22 @@ type NodeCommand struct {
 //function to create new cluster command
 func NewNodeCommand(options *Options) *NodeCommand {
 	godbc.Require(options != nil)
-	godbc.Require(options.Url != "")
 
 	cmd := &NodeCommand{}
 	cmd.name = "node"
 	cmd.options = options
 	cmd.cmds = Commands{
 		NewNodeAddCommand(options),
-		NewGetNodeInfoCommand(options),
+		NewNodeInfoCommand(options),
 		NewNodeDestroyCommand(options),
 	}
 
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
+
+	//usage on -help
+	cmd.flags.Usage = func() {
+		fmt.Println(usageTemplateNode)
+	}
 
 	godbc.Ensure(cmd.flags != nil)
 	godbc.Ensure(cmd.name == "node")

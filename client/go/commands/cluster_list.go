@@ -27,16 +27,16 @@ import (
 	"os"
 )
 
-type GetClusterListCommand struct {
+type ClusterListCommand struct {
 	Cmd
 	options *Options
 }
 
-func NewGetClusterListCommand(options *Options) *GetClusterListCommand {
+func NewClusterListCommand(options *Options) *ClusterListCommand {
 
 	godbc.Require(options != nil)
 
-	cmd := &GetClusterListCommand{}
+	cmd := &ClusterListCommand{}
 	cmd.name = "list"
 	cmd.options = options
 	cmd.flags = flag.NewFlagSet(cmd.name, flag.ExitOnError)
@@ -52,12 +52,12 @@ func NewGetClusterListCommand(options *Options) *GetClusterListCommand {
 	return cmd
 }
 
-func (a *GetClusterListCommand) Name() string {
+func (a *ClusterListCommand) Name() string {
 	return a.name
 
 }
 
-func (a *GetClusterListCommand) Exec(args []string) error {
+func (a *ClusterListCommand) Exec(args []string) error {
 
 	//parse args
 	a.flags.Parse(args)
